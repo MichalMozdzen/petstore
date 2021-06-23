@@ -19,12 +19,12 @@ public class DataHelper {
         return values[randomIndex];
     }
 
-    public static String generateRandomURL() {
-        return "http://www.somepagewithimages.org/photo/" + RandomStringUtils.randomAlphanumeric(15) + ".jpg";
-    }
-
     public static Category generateRandomCategory() {
         return new Category(RandomUtils.nextLong(0L, 999999999999999999L), "cat_" + RandomStringUtils.randomAlphanumeric(10));
+    }
+
+    public static String generateRandomURL() {
+        return "http://www.somepagewithimages.org/photo/" + RandomStringUtils.randomAlphanumeric(15) + ".jpg";
     }
 
     public static List<String> generateRandomURLs(int count) {
@@ -35,10 +35,14 @@ public class DataHelper {
         return result;
     }
 
+    public static Tag generateRandomTag() {
+        return new Tag(RandomUtils.nextLong(0L, 999999999999999999L), "tag_" + RandomStringUtils.randomAlphanumeric(5));
+    }
+
     public static List<Tag> generateRandomTags(int count) {
         List<Tag> result = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            result.add(new Tag(RandomUtils.nextLong(0L, 999999999999999999L), "tag_" + RandomStringUtils.randomAlphanumeric(5)));
+            result.add(generateRandomTag());
         }
         return result;
     }
