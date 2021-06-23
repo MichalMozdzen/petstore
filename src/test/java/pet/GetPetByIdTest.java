@@ -5,6 +5,7 @@ import helpers.TestHelper;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
+import org.apache.http.HttpStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,12 +25,17 @@ public class GetPetByIdTest {
 
     @Before
     public void prepareNewResource() {
-        createdResource = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(false), 200);
+        createdResource = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(false), HttpStatus.SC_OK);
     }
 
     @Test
     public void getPetById() {
-        getPetByIdRequest(jsonSpec, createdResource.getId(), 200);
+        getPetByIdRequest(jsonSpec, createdResource.getId(), HttpStatus.SC_OK);
+    }
+
+    @Test
+    public void errorPetNotFound() {
+        getPetByIdRequest(jsonSpec, createdResource.getId(), HttpStatus.SC_NOT_FOUND);
     }
 
     public Pet getPetByIdRequest(RequestSpecification spec, Long petId, int expectedStatusCode) {
@@ -50,7 +56,7 @@ public class GetPetByIdTest {
 
     @After
     public void deleteResource() {
-        new DeletePetByIdTest().deletePetByIdRequest(jsonSpec, createdResource.getId(), 200);
+        new DeletePetByIdTest().deletePetByIdRequest(jsonSpec, createdResource.getId(), HttpStatus.SC_OK);
     }
 
 }

@@ -5,6 +5,7 @@ import helpers.TestHelper;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,17 +25,17 @@ public class DeletePetByIdTest {
 
     @Before
     public void createPetForDeletion () {
-        forDeletion = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(true),200);
+        forDeletion = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(true),HttpStatus.SC_OK);
     }
 
     @Test
     public void deletePetById() {
-        deletePetByIdRequest(jsonSpec, forDeletion.getId(), 200);
+        deletePetByIdRequest(jsonSpec, forDeletion.getId(), HttpStatus.SC_OK);
     }
 
     @Test
     public void errorNotFound() {
-        deletePetByIdRequest(jsonSpec, -1L, 404);
+        deletePetByIdRequest(jsonSpec, -1L, HttpStatus.SC_NOT_FOUND);
     }
 
     public void deletePetByIdRequest(RequestSpecification spec, Long petId, int expectedStatusCode) {

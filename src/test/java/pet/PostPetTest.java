@@ -5,6 +5,7 @@ import helpers.TestHelper;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
+import org.apache.http.HttpStatus;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -23,7 +24,7 @@ public class PostPetTest {
     public void createNewPetMandatoryFields() {
         Pet body = DataHelper.createPetBody(true);
 
-        Pet response = sendNewPetRequest(jsonSpec, body, 200);
+        Pet response = sendNewPetRequest(jsonSpec, body, HttpStatus.SC_OK);
 
         TestHelper.assertEqualPet(body, response, "id");
     }
@@ -32,14 +33,14 @@ public class PostPetTest {
     public void createNewPetWithAllFields() {
         Pet body = DataHelper.createPetBody(false);
 
-        Pet response = sendNewPetRequest(jsonSpec, body, 200);
+        Pet response = sendNewPetRequest(jsonSpec, body, HttpStatus.SC_OK);
 
         TestHelper.assertEqualPet(body, response);
     }
 
     @Test
     public void errorRequestWithEmptyBody() {
-        sendNewPetRequest(jsonSpec, "{}", 405);
+        sendNewPetRequest(jsonSpec, "{}", HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
     @Test
@@ -52,7 +53,7 @@ public class PostPetTest {
         .when()
             .post("pet")
         .then()
-            .statusCode(405);
+            .statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
 
         //@formatter:on
 
