@@ -7,8 +7,11 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class DataHelper {
@@ -58,5 +61,19 @@ public class DataHelper {
                     .setStatus(DataHelper.generateRandomStatus().label);
         }
         return body;
+    }
+
+    public static String[] getTwoRandomStatuses() {
+        List<Pet.Status> list = Stream.of(Pet.Status.values())
+                .filter(s -> s != generateRandomStatus())
+                .collect(Collectors.toList());
+
+        return list.stream().map(e -> e.label).toArray(String[]::new);
+    }
+
+    public static String prepareStatusWithCommas(String... statuses) {
+        StringBuilder result = new StringBuilder();
+        Arrays.stream(statuses).forEach(s -> result.append(s).append(","));
+        return result.deleteCharAt(result.length() - 1).toString();
     }
 }
