@@ -7,28 +7,22 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
 import org.apache.http.HttpStatus;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import static io.restassured.RestAssured.given;
 
 public class GetPetByIdTest {
 
-    private Pet createdResource;
+    private static Long forModification;
 
-    @Before
-    public void prepareNewResource() {
-        Response response = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(false));
-
-        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
-
-        createdResource = response.as(Pet.class);
+    @BeforeClass
+    public static void prepareNewResource() {
+        forModification = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(true)).as(Pet.class).getId();
     }
 
     @Test
     public void getPetById() {
-        Response response = getPetByIdRequest(TestConfig.JSON_SPEC, createdResource.getId());
+        Response response = getPetByIdRequest(TestConfig.JSON_SPEC, forModification);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
@@ -55,11 +49,9 @@ public class GetPetByIdTest {
         //@formatter:on
     }
 
-    @After
-    public void deleteResource() {
-        Response response = new DeletePetByIdTest().deletePetByIdRequest(TestConfig.JSON_SPEC, createdResource.getId());
-
-        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
+    @AfterClass
+    public static void deleteResource() {
+        new DeletePetByIdTest().deletePetByIdRequest(TestConfig.JSON_SPEC, forModification);
     }
 
 }

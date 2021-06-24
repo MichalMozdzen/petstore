@@ -7,27 +7,23 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
 import org.apache.http.HttpStatus;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 
 public class DeletePetByIdTest {
 
-    private Pet forDeletion;
+    private static Long forDeletion;
 
-    @Before
-    public void createPetForDeletion() {
-        Response response = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(true));
-
-        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
-
-        forDeletion = response.as(Pet.class);
+    @BeforeClass
+    public static void prepareNewResource() {
+        forDeletion = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(true)).as(Pet.class).getId();
     }
 
     @Test
     public void deletePetById() {
-        Response response = deletePetByIdRequest(TestConfig.JSON_SPEC, forDeletion.getId());
+        Response response = deletePetByIdRequest(TestConfig.JSON_SPEC, forDeletion);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }

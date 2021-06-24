@@ -18,7 +18,7 @@ public class PutPetTest {
     private static Long forModification;
 
     @BeforeClass
-    public static void initSpecs() {
+    public static void prepareNewResource() {
         forModification = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(true)).as(Pet.class).getId();
     }
 

@@ -3,12 +3,12 @@ package pet;
 import helpers.DataHelper;
 import helpers.TestConfig;
 import helpers.TestHelper;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
 import org.apache.http.HttpStatus;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class PostPetUploadImageByPetId {
     private static Long forModification;
 
     @BeforeClass
-    public static void initSpecs() throws URISyntaxException {
+    public static void prepareNewResources() throws URISyntaxException {
         file = DataHelper.createMultipartData();
         forModification = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(true)).as(Pet.class).getId();
     }
@@ -57,6 +57,11 @@ public class PostPetUploadImageByPetId {
         //@formatter:on
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, response.statusCode());
+    }
+
+    @AfterClass
+    public static void deleteResource() {
+        new DeletePetByIdTest().deletePetByIdRequest(TestConfig.JSON_SPEC, forModification);
     }
 
     public Response sendPetUploadImageRequest(RequestSpecification spec, Long petId, MultiPartSpecification fileData) {
