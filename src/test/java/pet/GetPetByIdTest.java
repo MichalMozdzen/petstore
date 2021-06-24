@@ -3,6 +3,7 @@ package pet;
 import helpers.DataHelper;
 import helpers.TestHelper;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
 import org.apache.http.HttpStatus;
@@ -25,20 +26,28 @@ public class GetPetByIdTest {
 
     @Before
     public void prepareNewResource() {
-        createdResource = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(false), HttpStatus.SC_OK);
+        Response response = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(false));
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
+
+        createdResource = response.as(Pet.class);
     }
 
     @Test
     public void getPetById() {
-        getPetByIdRequest(jsonSpec, createdResource.getId(), HttpStatus.SC_OK);
+        Response response = getPetByIdRequest(jsonSpec, createdResource.getId());
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
 
     @Test
     public void errorPetNotFound() {
-        getPetByIdRequest(jsonSpec, createdResource.getId(), HttpStatus.SC_NOT_FOUND);
+        Response response = getPetByIdRequest(jsonSpec, -1L);
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_NOT_FOUND, response.statusCode());
     }
 
-    public Pet getPetByIdRequest(RequestSpecification spec, Long petId, int expectedStatusCode) {
+    public Response getPetByIdRequest(RequestSpecification spec, Long petId) {
 
         //@formatter:off
 
@@ -47,16 +56,17 @@ public class GetPetByIdTest {
             .when()
                 .get("pet/" + petId)
             .then()
-                .statusCode(expectedStatusCode)
                 .extract()
-                .as(Pet.class);
+                .response();
 
         //@formatter:on
     }
 
     @After
     public void deleteResource() {
-        new DeletePetByIdTest().deletePetByIdRequest(jsonSpec, createdResource.getId(), HttpStatus.SC_OK);
+        Response response = new DeletePetByIdTest().deletePetByIdRequest(jsonSpec, createdResource.getId());
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
 
 }

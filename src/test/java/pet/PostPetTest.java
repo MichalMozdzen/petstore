@@ -3,6 +3,7 @@ package pet;
 import helpers.DataHelper;
 import helpers.TestHelper;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
 import org.apache.http.HttpStatus;
@@ -24,23 +25,27 @@ public class PostPetTest {
     public void createNewPetMandatoryFields() {
         Pet body = DataHelper.createPetBody(true);
 
-        Pet response = sendNewPetRequest(jsonSpec, body, HttpStatus.SC_OK);
+        Response response = sendNewPetRequest(jsonSpec, body);
 
-        TestHelper.assertEqualPet(body, response, "id");
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
+        TestHelper.assertEqualPet(body, response.as(Pet.class), "id");
     }
 
     @Test
     public void createNewPetWithAllFields() {
         Pet body = DataHelper.createPetBody(false);
 
-        Pet response = sendNewPetRequest(jsonSpec, body, HttpStatus.SC_OK);
+        Response response = sendNewPetRequest(jsonSpec, body);
 
-        TestHelper.assertEqualPet(body, response);
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
+        TestHelper.assertEqualPet(body, response.as(Pet.class));
     }
 
     @Test
     public void errorRequestWithEmptyBody() {
-        sendNewPetRequest(jsonSpec, "{}", HttpStatus.SC_METHOD_NOT_ALLOWED);
+        Response response = sendNewPetRequest(jsonSpec, "{}");
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_METHOD_NOT_ALLOWED, response.statusCode());
     }
 
     @Test
@@ -48,18 +53,20 @@ public class PostPetTest {
 
         //@formatter:off
 
-        given()
+        Response response = given()
             .spec(jsonSpec)
         .when()
             .post("pet")
         .then()
-            .statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
+            .extract()
+            .response();
 
         //@formatter:on
 
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_METHOD_NOT_ALLOWED, response.statusCode());
     }
 
-    public Pet sendNewPetRequest(RequestSpecification spec, Object body, int expectedStatusCode) {
+    public Response sendNewPetRequest(RequestSpecification spec, Object body) {
 
         //@formatter:off
 
@@ -69,9 +76,8 @@ public class PostPetTest {
             .when()
                 .post("pet")
             .then()
-                .statusCode(expectedStatusCode)
                 .extract()
-                .as(Pet.class);
+                .response();
 
         //@formatter:on
     }

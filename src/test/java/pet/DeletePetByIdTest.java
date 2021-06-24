@@ -3,6 +3,7 @@ package pet;
 import helpers.DataHelper;
 import helpers.TestHelper;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
 import org.apache.http.HttpStatus;
@@ -25,29 +26,38 @@ public class DeletePetByIdTest {
 
     @Before
     public void createPetForDeletion () {
-        forDeletion = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(true),HttpStatus.SC_OK);
+        Response response = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(true));
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
+
+        forDeletion = response.as(Pet.class);
     }
 
     @Test
     public void deletePetById() {
-        deletePetByIdRequest(jsonSpec, forDeletion.getId(), HttpStatus.SC_OK);
+        Response response = deletePetByIdRequest(jsonSpec, forDeletion.getId());
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
 
     @Test
     public void errorNotFound() {
-        deletePetByIdRequest(jsonSpec, -1L, HttpStatus.SC_NOT_FOUND);
+        Response response = deletePetByIdRequest(jsonSpec, -1L);
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_NOT_FOUND, response.statusCode());
     }
 
-    public void deletePetByIdRequest(RequestSpecification spec, Long petId, int expectedStatusCode) {
+    public Response deletePetByIdRequest(RequestSpecification spec, Long petId) {
 
         //@formatter:off
 
-        given()
-            .spec(spec)
-        .when()
-            .delete("pet/" + petId)
-        .then()
-            .statusCode(expectedStatusCode);
+        return given()
+                .spec(spec)
+            .when()
+                .delete("pet/" + petId)
+            .then()
+                .extract()
+                .response();
 
         //@formatter:on
     }

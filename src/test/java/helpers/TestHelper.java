@@ -22,10 +22,16 @@ public class TestHelper {
     }
 
     public static void assertEqualPet(Pet requestBody, Pet responseBody, String... ignoredFields) {
-        assertThat(requestBody)
+        assertThat(responseBody)
                 .usingRecursiveComparison()
                 .ignoringFields(ignoredFields)
-                .isEqualTo(responseBody);
+                .isEqualTo(requestBody);
+    }
+
+    public static void assertEqualStatusCode(int expectedCode, int responseCode) {
+        assertThat(responseCode)
+                .withFailMessage("Incorrect status code.\nExpected: %s\nActual: %s",expectedCode,responseCode)
+                .isEqualTo(expectedCode);
     }
 
 }
