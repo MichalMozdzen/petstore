@@ -6,6 +6,7 @@ import helpers.TestHelper;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 
@@ -31,6 +32,16 @@ public class PostPetTest {
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
         TestHelper.assertEqualPet(body, response.as(Pet.class));
+    }
+
+    @Test
+    public void errorRequestWitInvalidStatus() {
+        Pet body = DataHelper.createPetBody(true);
+        body.setStatus(RandomStringUtils.randomAlphabetic(20));
+
+        Response response = sendNewPetRequest(TestConfig.JSON_SPEC, body);
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_METHOD_NOT_ALLOWED, response.statusCode());
     }
 
     @Test
