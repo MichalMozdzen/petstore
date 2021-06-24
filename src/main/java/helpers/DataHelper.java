@@ -1,5 +1,8 @@
 package helpers;
 
+import io.restassured.builder.MultiPartSpecBuilder;
+import io.restassured.http.ContentType;
+import io.restassured.specification.MultiPartSpecification;
 import models.Category;
 import models.Pet;
 import models.Tag;
@@ -7,6 +10,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.activation.MimeType;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -78,8 +85,24 @@ public class DataHelper {
         return result.deleteCharAt(result.length() - 1).toString();
     }
 
-    public static Pair<String,String> createFormParams() {
+    public static Pair<String, String> createFormParams() {
         return Pair.of("pet_" + RandomStringUtils.randomAlphanumeric(10),
                 generateRandomStatus().label);
+    }
+
+    public static MultiPartSpecification createMultipartData() throws URISyntaxException {
+        File file;
+        URL resource = DataHelper.class.getClassLoader().getResource("samplePet.png");
+        if (resource == null) {
+            throw new IllegalArgumentException("File not found.");
+        } else {
+            file = new File(resource.toURI());
+        }
+
+        return new MultiPartSpecBuilder(file)
+                .fileName("samplePet.png")
+                .controlName("file")
+                .mimeType("multipart/form-data")
+                .build();
     }
 }

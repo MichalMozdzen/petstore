@@ -37,7 +37,7 @@ public class PostPetByIdTest {
 
     @Test
     public void modifyWithFullForm() {
-        Response response = postPetByIdRequest(urlencSpec, forModification, formParams);
+        Response response = sendPetByIdRequest(urlencSpec, forModification, formParams);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
@@ -45,21 +45,21 @@ public class PostPetByIdTest {
     @Test
     public void modifyPetWithEmptyForm() {
         Pair<String, String> emptyForm = Pair.of(null, null);
-        Response response = postPetByIdRequest(urlencSpec, forModification, emptyForm);
+        Response response = sendPetByIdRequest(urlencSpec, forModification, emptyForm);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
 
     @Test
     public void errorPetNotFound() {
-        Response response = postPetByIdRequest(urlencSpec, -1L, formParams);
+        Response response = sendPetByIdRequest(urlencSpec, -1L, formParams);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_NOT_FOUND, response.statusCode());
     }
 
     @Test
     public void errorUnsupportedMediaType() {
-        Response response = postPetByIdRequest(jsonSpec, forModification, formParams);
+        Response response = sendPetByIdRequest(jsonSpec, forModification, formParams);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, response.statusCode());
     }
@@ -69,7 +69,7 @@ public class PostPetByIdTest {
         new DeletePetByIdTest().deletePetByIdRequest(jsonSpec, forModification);
     }
 
-    public Response postPetByIdRequest(RequestSpecification spec, Long petId, Pair<String, String> formParam) {
+    public Response sendPetByIdRequest(RequestSpecification spec, Long petId, Pair<String, String> formParam) {
 
         //@formatter:off
 
