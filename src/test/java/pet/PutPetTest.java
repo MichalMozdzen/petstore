@@ -19,7 +19,7 @@ public class PutPetTest {
 
     @BeforeClass
     public static void initSpecs() {
-        jsonSpec = TestHelper.initSpecification(ContentType.JSON);
+        jsonSpec = TestHelper.initSpecification(ContentType.JSON, ContentType.JSON);
         forModification = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(true)).as(Pet.class).getId();
     }
 

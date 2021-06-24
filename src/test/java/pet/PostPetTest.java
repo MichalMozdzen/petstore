@@ -18,7 +18,7 @@ public class PostPetTest {
 
     @BeforeClass
     public static void initSpecs() {
-        jsonSpec = TestHelper.initSpecification(ContentType.JSON);
+        jsonSpec = TestHelper.initSpecification(ContentType.JSON, ContentType.JSON);
     }
 
     @Test

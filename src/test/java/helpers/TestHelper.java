@@ -15,10 +15,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
 
-    public static RequestSpecification initSpecification(ContentType contentType) {
+    public static RequestSpecification initSpecification(ContentType contentType, ContentType accept) {
         return new RequestSpecBuilder()
                 .setContentType(contentType)
-                .setAccept(contentType)
+                .setAccept(accept)
                 .setBaseUri("https://petstore.swagger.io/v2/")
                 .addFilter(new ResponseLoggingFilter())
                 .addFilter(new RequestLoggingFilter())

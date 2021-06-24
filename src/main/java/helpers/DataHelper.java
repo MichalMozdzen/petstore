@@ -5,6 +5,7 @@ import models.Pet;
 import models.Tag;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,5 +76,10 @@ public class DataHelper {
         StringBuilder result = new StringBuilder();
         Arrays.stream(statuses).forEach(s -> result.append(s).append(","));
         return result.deleteCharAt(result.length() - 1).toString();
+    }
+
+    public static Pair<String,String> createFormParams() {
+        return Pair.of("pet_" + RandomStringUtils.randomAlphanumeric(10),
+                generateRandomStatus().label);
     }
 }
