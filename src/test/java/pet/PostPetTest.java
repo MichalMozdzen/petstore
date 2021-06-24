@@ -1,45 +1,54 @@
 package pet;
 
 import helpers.DataHelper;
+import helpers.TestConfig;
 import helpers.TestHelper;
-import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
-import org.junit.BeforeClass;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.http.HttpStatus;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 
 public class PostPetTest {
 
-    private static RequestSpecification jsonSpec;
-
-    @BeforeClass
-    public static void initSpecs() {
-        jsonSpec = TestHelper.initSpecification(ContentType.JSON);
-    }
-
     @Test
     public void createNewPetMandatoryFields() {
         Pet body = DataHelper.createPetBody(true);
 
-        Pet response = sendNewPetRequest(jsonSpec, body, 200);
+        Response response = sendNewPetRequest(TestConfig.JSON_SPEC, body);
 
-        TestHelper.assertEqualPet(body, response, "id");
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
+        TestHelper.assertEqualPet(body, response.as(Pet.class), "id");
     }
 
     @Test
     public void createNewPetWithAllFields() {
         Pet body = DataHelper.createPetBody(false);
 
-        Pet response = sendNewPetRequest(jsonSpec, body, 200);
+        Response response = sendNewPetRequest(TestConfig.JSON_SPEC, body);
 
-        TestHelper.assertEqualPet(body, response);
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
+        TestHelper.assertEqualPet(body, response.as(Pet.class));
+    }
+
+    @Test
+    public void errorRequestWitInvalidStatus() {
+        Pet body = DataHelper.createPetBody(true);
+        body.setStatus(RandomStringUtils.randomAlphabetic(20));
+
+        Response response = sendNewPetRequest(TestConfig.JSON_SPEC, body);
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_METHOD_NOT_ALLOWED, response.statusCode());
     }
 
     @Test
     public void errorRequestWithEmptyBody() {
-        sendNewPetRequest(jsonSpec, "{}", 405);
+        Response response = sendNewPetRequest(TestConfig.JSON_SPEC, "{}");
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_METHOD_NOT_ALLOWED, response.statusCode());
     }
 
     @Test
@@ -47,18 +56,20 @@ public class PostPetTest {
 
         //@formatter:off
 
-        given()
-            .spec(jsonSpec)
+        Response response = given()
+            .spec(TestConfig.JSON_SPEC)
         .when()
             .post("pet")
         .then()
-            .statusCode(405);
+            .extract()
+            .response();
 
         //@formatter:on
 
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_METHOD_NOT_ALLOWED, response.statusCode());
     }
 
-    public Pet sendNewPetRequest(RequestSpecification spec, Object body, int expectedStatusCode) {
+    public Response sendNewPetRequest(RequestSpecification spec, Object body) {
 
         //@formatter:off
 
@@ -68,9 +79,8 @@ public class PostPetTest {
             .when()
                 .post("pet")
             .then()
-                .statusCode(expectedStatusCode)
                 .extract()
-                .as(Pet.class);
+                .response();
 
         //@formatter:on
     }

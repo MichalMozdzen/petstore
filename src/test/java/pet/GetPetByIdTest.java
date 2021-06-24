@@ -1,38 +1,40 @@
 package pet;
 
 import helpers.DataHelper;
+import helpers.TestConfig;
 import helpers.TestHelper;
-import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.apache.http.HttpStatus;
+import org.junit.*;
 
 import static io.restassured.RestAssured.given;
 
 public class GetPetByIdTest {
 
-    private static RequestSpecification jsonSpec;
-    private Pet createdResource;
+    private static Long forModification;
 
     @BeforeClass
-    public static void initSpecs() {
-        jsonSpec = TestHelper.initSpecification(ContentType.JSON);
-    }
-
-    @Before
-    public void prepareNewResource() {
-        createdResource = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(false), 200);
+    public static void prepareNewResource() {
+        forModification = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(true)).as(Pet.class).getId();
     }
 
     @Test
     public void getPetById() {
-        getPetByIdRequest(jsonSpec, createdResource.getId(), 200);
+        Response response = getPetByIdRequest(TestConfig.JSON_SPEC, forModification);
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
 
-    public Pet getPetByIdRequest(RequestSpecification spec, Long petId, int expectedStatusCode) {
+    @Test
+    public void errorPetNotFound() {
+        Response response = getPetByIdRequest(TestConfig.JSON_SPEC, -1L);
+
+        TestHelper.assertEqualStatusCode(HttpStatus.SC_NOT_FOUND, response.statusCode());
+    }
+
+    public Response getPetByIdRequest(RequestSpecification spec, Long petId) {
 
         //@formatter:off
 
@@ -41,16 +43,15 @@ public class GetPetByIdTest {
             .when()
                 .get("pet/" + petId)
             .then()
-                .statusCode(expectedStatusCode)
                 .extract()
-                .as(Pet.class);
+                .response();
 
         //@formatter:on
     }
 
-    @After
-    public void deleteResource() {
-        new DeletePetByIdTest().deletePetByIdRequest(jsonSpec, createdResource.getId(), 200);
+    @AfterClass
+    public static void deleteResource() {
+        new DeletePetByIdTest().deletePetByIdRequest(TestConfig.JSON_SPEC, forModification);
     }
 
 }
