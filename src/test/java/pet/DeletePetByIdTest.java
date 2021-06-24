@@ -1,14 +1,13 @@
 package pet;
 
 import helpers.DataHelper;
+import helpers.TestConfig;
 import helpers.TestHelper;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
@@ -17,16 +16,9 @@ public class DeletePetByIdTest {
 
     private Pet forDeletion;
 
-    private static RequestSpecification jsonSpec;
-
-    @BeforeClass
-    public static void initSpecs() {
-        jsonSpec = TestHelper.initSpecification(ContentType.JSON, ContentType.JSON);
-    }
-
     @Before
-    public void createPetForDeletion () {
-        Response response = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(true));
+    public void createPetForDeletion() {
+        Response response = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(true));
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
 
@@ -35,14 +27,14 @@ public class DeletePetByIdTest {
 
     @Test
     public void deletePetById() {
-        Response response = deletePetByIdRequest(jsonSpec, forDeletion.getId());
+        Response response = deletePetByIdRequest(TestConfig.JSON_SPEC, forDeletion.getId());
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
 
     @Test
     public void errorNotFound() {
-        Response response = deletePetByIdRequest(jsonSpec, -1L);
+        Response response = deletePetByIdRequest(TestConfig.JSON_SPEC, -1L);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_NOT_FOUND, response.statusCode());
     }

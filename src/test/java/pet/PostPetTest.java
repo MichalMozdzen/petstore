@@ -1,31 +1,23 @@
 package pet;
 
 import helpers.DataHelper;
+import helpers.TestConfig;
 import helpers.TestHelper;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
 import org.apache.http.HttpStatus;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 
 public class PostPetTest {
 
-    private static RequestSpecification jsonSpec;
-
-    @BeforeClass
-    public static void initSpecs() {
-        jsonSpec = TestHelper.initSpecification(ContentType.JSON, ContentType.JSON);
-    }
-
     @Test
     public void createNewPetMandatoryFields() {
         Pet body = DataHelper.createPetBody(true);
 
-        Response response = sendNewPetRequest(jsonSpec, body);
+        Response response = sendNewPetRequest(TestConfig.JSON_SPEC, body);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
         TestHelper.assertEqualPet(body, response.as(Pet.class), "id");
@@ -35,7 +27,7 @@ public class PostPetTest {
     public void createNewPetWithAllFields() {
         Pet body = DataHelper.createPetBody(false);
 
-        Response response = sendNewPetRequest(jsonSpec, body);
+        Response response = sendNewPetRequest(TestConfig.JSON_SPEC, body);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
         TestHelper.assertEqualPet(body, response.as(Pet.class));
@@ -43,7 +35,7 @@ public class PostPetTest {
 
     @Test
     public void errorRequestWithEmptyBody() {
-        Response response = sendNewPetRequest(jsonSpec, "{}");
+        Response response = sendNewPetRequest(TestConfig.JSON_SPEC, "{}");
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_METHOD_NOT_ALLOWED, response.statusCode());
     }
@@ -54,7 +46,7 @@ public class PostPetTest {
         //@formatter:off
 
         Response response = given()
-            .spec(jsonSpec)
+            .spec(TestConfig.JSON_SPEC)
         .when()
             .post("pet")
         .then()

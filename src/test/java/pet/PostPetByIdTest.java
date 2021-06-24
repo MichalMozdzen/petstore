@@ -1,8 +1,8 @@
 package pet;
 
 import helpers.DataHelper;
+import helpers.TestConfig;
 import helpers.TestHelper;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
@@ -17,17 +17,14 @@ import static io.restassured.RestAssured.given;
 
 public class PostPetByIdTest {
 
-    private static RequestSpecification urlencSpec;
-    private static RequestSpecification jsonSpec;
+
     private static Long forModification;
     private Pair<String, String> formParams;
 
 
     @BeforeClass
     public static void initSpecs() {
-        urlencSpec = TestHelper.initSpecification(ContentType.URLENC, ContentType.JSON);
-        jsonSpec = TestHelper.initSpecification(ContentType.JSON, ContentType.JSON);
-        forModification = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(true)).as(Pet.class).getId();
+        forModification = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(true)).as(Pet.class).getId();
     }
 
     @Before
@@ -37,7 +34,7 @@ public class PostPetByIdTest {
 
     @Test
     public void modifyWithFullForm() {
-        Response response = sendPetByIdRequest(urlencSpec, forModification, formParams);
+        Response response = sendPetByIdRequest(TestConfig.URLENC_SPEC, forModification, formParams);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
@@ -45,28 +42,28 @@ public class PostPetByIdTest {
     @Test
     public void modifyPetWithEmptyForm() {
         Pair<String, String> emptyForm = Pair.of(null, null);
-        Response response = sendPetByIdRequest(urlencSpec, forModification, emptyForm);
+        Response response = sendPetByIdRequest(TestConfig.URLENC_SPEC, forModification, emptyForm);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
 
     @Test
     public void errorPetNotFound() {
-        Response response = sendPetByIdRequest(urlencSpec, -1L, formParams);
+        Response response = sendPetByIdRequest(TestConfig.URLENC_SPEC, -1L, formParams);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_NOT_FOUND, response.statusCode());
     }
 
     @Test
     public void errorUnsupportedMediaType() {
-        Response response = sendPetByIdRequest(jsonSpec, forModification, formParams);
+        Response response = sendPetByIdRequest(TestConfig.JSON_SPEC, forModification, formParams);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, response.statusCode());
     }
 
     @AfterClass
     public static void deleteResource() {
-        new DeletePetByIdTest().deletePetByIdRequest(jsonSpec, forModification);
+        new DeletePetByIdTest().deletePetByIdRequest(TestConfig.JSON_SPEC, forModification);
     }
 
     public Response sendPetByIdRequest(RequestSpecification spec, Long petId, Pair<String, String> formParam) {

@@ -1,26 +1,25 @@
 package pet;
 
 import helpers.DataHelper;
+import helpers.TestConfig;
 import helpers.TestHelper;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import models.Pet;
 import org.apache.http.HttpStatus;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 
 public class PutPetTest {
 
-    private static RequestSpecification jsonSpec;
-
     private static Long forModification;
 
     @BeforeClass
     public static void initSpecs() {
-        jsonSpec = TestHelper.initSpecification(ContentType.JSON, ContentType.JSON);
-        forModification = new PostPetTest().sendNewPetRequest(jsonSpec, DataHelper.createPetBody(true)).as(Pet.class).getId();
+        forModification = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(true)).as(Pet.class).getId();
     }
 
     @Test
@@ -28,7 +27,7 @@ public class PutPetTest {
         Pet body = DataHelper.createPetBody(true);
         body.setId(forModification);
 
-        Response response = modifyPetRequest(jsonSpec, body);
+        Response response = modifyPetRequest(TestConfig.JSON_SPEC, body);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
         TestHelper.assertEqualPet(body, response.as(Pet.class));
@@ -39,7 +38,7 @@ public class PutPetTest {
         Pet body = DataHelper.createPetBody(false);
         body.setId(forModification);
 
-        Response response = modifyPetRequest(jsonSpec, body);
+        Response response = modifyPetRequest(TestConfig.JSON_SPEC, body);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
         TestHelper.assertEqualPet(body, response.as(Pet.class));
@@ -50,7 +49,7 @@ public class PutPetTest {
         Pet body = DataHelper.createPetBody(true);
         body.setId(-1L);
 
-        Response response = modifyPetRequest(jsonSpec, body);
+        Response response = modifyPetRequest(TestConfig.JSON_SPEC, body);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_NOT_FOUND, response.statusCode());
     }
@@ -61,7 +60,7 @@ public class PutPetTest {
         //@formatter:off
 
         Response response = given()
-                .spec(jsonSpec)
+                .spec(TestConfig.JSON_SPEC)
             .when()
                 .put("pet")
             .then()
@@ -75,7 +74,7 @@ public class PutPetTest {
 
     @AfterClass
     public static void deleteResource() {
-        new DeletePetByIdTest().deletePetByIdRequest(jsonSpec, forModification);
+        new DeletePetByIdTest().deletePetByIdRequest(TestConfig.JSON_SPEC, forModification);
     }
 
     public Response modifyPetRequest(RequestSpecification spec, Object body) {

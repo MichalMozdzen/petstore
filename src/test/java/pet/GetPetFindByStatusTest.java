@@ -1,14 +1,12 @@
 package pet;
 
 import helpers.DataHelper;
+import helpers.TestConfig;
 import helpers.TestHelper;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import models.Pet;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpStatus;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -17,18 +15,11 @@ import static io.restassured.RestAssured.given;
 
 public class GetPetFindByStatusTest {
 
-    private static RequestSpecification jsonSpec;
-
-    @BeforeClass
-    public static void initSpecs() {
-        jsonSpec = TestHelper.initSpecification(ContentType.JSON, ContentType.JSON);
-    }
-
     @Test
     public void getPetsWithRandomStatus() {
         String status = DataHelper.generateRandomStatus().label;
 
-        Response response = getPetsByStatusRequest(jsonSpec, status);
+        Response response = getPetsByStatusRequest(TestConfig.JSON_SPEC, status);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
         TestHelper.assertMatchStatuses(response, status);
@@ -38,7 +29,7 @@ public class GetPetFindByStatusTest {
     public void getPetsWithFewStatuses() {
         String[] statuses = DataHelper.getTwoRandomStatuses();
 
-        Response response = getPetsByStatusRequest(jsonSpec, statuses);
+        Response response = getPetsByStatusRequest(TestConfig.JSON_SPEC, statuses);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
         TestHelper.assertMatchStatuses(response, statuses);
@@ -48,7 +39,7 @@ public class GetPetFindByStatusTest {
     public void errorInvalidStatus() {
         String status = RandomStringUtils.randomAlphabetic(20);
 
-        Response response = getPetsByStatusRequest(jsonSpec, status);
+        Response response = getPetsByStatusRequest(TestConfig.JSON_SPEC, status);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_BAD_REQUEST, response.statusCode());
     }
@@ -59,7 +50,7 @@ public class GetPetFindByStatusTest {
         //@formatter:off
 
         Response response = given()
-                    .spec(jsonSpec)
+                    .spec(TestConfig.JSON_SPEC)
                 .when()
                     .get("pet/findByStatus" )
                 .then()

@@ -1,6 +1,7 @@
 package pet;
 
 import helpers.DataHelper;
+import helpers.TestConfig;
 import helpers.TestHelper;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -17,29 +18,25 @@ import static io.restassured.RestAssured.given;
 
 public class PostPetUploadImageByPetId {
 
-    private static RequestSpecification multipartSpec;
-    private static RequestSpecification jsonSpec;
     private static MultiPartSpecification file;
     private static Long forModification;
 
     @BeforeClass
     public static void initSpecs() throws URISyntaxException {
-        multipartSpec = TestHelper.initSpecification(ContentType.MULTIPART, ContentType.JSON);
-        jsonSpec = TestHelper.initSpecification(ContentType.JSON, ContentType.JSON);
         file = DataHelper.createMultipartData();
-        forModification = new PostPetTest().sendNewPetRequest(jsonSpec,DataHelper.createPetBody(true)).as(Pet.class).getId();
+        forModification = new PostPetTest().sendNewPetRequest(TestConfig.JSON_SPEC, DataHelper.createPetBody(true)).as(Pet.class).getId();
     }
 
     @Test
     public void uploadNewImageForPet() {
-        Response response = sendPetUploadImageRequest(multipartSpec, forModification, file);
+        Response response = sendPetUploadImageRequest(TestConfig.MULTIPART_SPEC, forModification, file);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_OK, response.statusCode());
     }
 
     @Test
     public void errorNotFound() {
-        Response response = sendPetUploadImageRequest(multipartSpec, -1L, file);
+        Response response = sendPetUploadImageRequest(TestConfig.MULTIPART_SPEC, -1L, file);
 
         TestHelper.assertEqualStatusCode(HttpStatus.SC_NOT_FOUND, response.statusCode());
     }
@@ -50,7 +47,7 @@ public class PostPetUploadImageByPetId {
         //@formatter:off
 
         Response response = given()
-                .spec(jsonSpec)
+                .spec(TestConfig.JSON_SPEC)
             .when()
                 .post("pet/" + forModification + "/uploadImage")
             .then()
