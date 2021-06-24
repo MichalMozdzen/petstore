@@ -49,13 +49,13 @@ public class DataHelper {
 
     public static Pet createPetBody(boolean onlyMandatory) {
         Pet body = new Pet()
-            .setName("pet_" + RandomStringUtils.randomAlphanumeric(10))
-            .setPhotoUrls(DataHelper.generateRandomURLs(2));
+                .setName("pet_" + RandomStringUtils.randomAlphanumeric(10))
+                .setPhotoUrls(DataHelper.generateRandomURLs(2));
         if (!onlyMandatory) {
             body.setId(RandomUtils.nextLong(0L, 999999999999999999L))
-                .setCategory(DataHelper.generateRandomCategory())
-                .setTags(DataHelper.generateRandomTags(2))
-                .setStatus(DataHelper.generateRandomStatus());
+                    .setCategory(DataHelper.generateRandomCategory())
+                    .setTags(DataHelper.generateRandomTags(2))
+                    .setStatus(DataHelper.generateRandomStatus().label);
         }
         return body;
     }
